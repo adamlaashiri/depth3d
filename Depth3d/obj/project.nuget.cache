@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "dgSpecHash": "T9Mo7/xmclpzYDdSjDMBOKJbZmOzaybJAdsC52mS0Pb2DaxvHoLZ55jK/fJbpS91NbmrJZKD79eVKZvCDi4Ipw==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Dell\\source\\repos\\Depth3d\\Depth3d\\Depth3d.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Dell\\.nuget\\packages\\bepuphysics\\2.4.0\\bepuphysics.2.4.0.nupkg.sha512",
+    "C:\\Users\\Dell\\.nuget\\packages\\bepuutilities\\2.4.0\\bepuutilities.2.4.0.nupkg.sha512",
+    "C:\\Users\\Dell\\.nuget\\packages\\microsoft.win32.systemevents\\6.0.0\\microsoft.win32.systemevents.6.0.0.nupkg.sha512",
+    "C:\\Users\\Dell\\.nuget\\packages\\opentk\\4.7.1\\opentk.4.7.1.nupkg.sha512",
+    "C:\\Users\\Dell\\.nuget\\packages\\opentk.compute\\4.7.1\\opentk.compute.4.7.1.nupkg.sha512",
+    "C:\\Users\\Dell\\.nuget\\packages\\opentk.core\\4.7.1\\opentk.core.4.7.1.nupkg.sha512",
+    "C:\\Users\\Dell\\.nuget\\packages\\opentk.graphics\\4.7.1\\opentk.graphics.4.7.1.nupkg.sha512",
+    "C:\\Users\\Dell\\.nuget\\packages\\opentk.input\\4.7.1\\opentk.input.4.7.1.nupkg.sha512",
+    "C:\\Users\\Dell\\.nuget\\packages\\opentk.mathematics\\4.7.1\\opentk.mathematics.4.7.1.nupkg.sha512",
+    "C:\\Users\\Dell\\.nuget\\packages\\opentk.openal\\4.7.1\\opentk.openal.4.7.1.nupkg.sha512",
+    "C:\\Users\\Dell\\.nuget\\packages\\opentk.redist.glfw\\3.3.0-pre20200830200122\\opentk.redist.glfw.3.3.0-pre20200830200122.nupkg.sha512",
+    "C:\\Users\\Dell\\.nuget\\packages\\opentk.windowing.common\\4.7.1\\opentk.windowing.common.4.7.1.nupkg.sha512",
+    "C:\\Users\\Dell\\.nuget\\packages\\opentk.windowing.desktop\\4.7.1\\opentk.windowing.desktop.4.7.1.nupkg.sha512",
+    "C:\\Users\\Dell\\.nuget\\packages\\opentk.windowing.graphicslibraryframework\\4.7.1\\opentk.windowing.graphicslibraryframework.4.7.1.nupkg.sha512",
+    "C:\\Users\\Dell\\.nuget\\packages\\system.drawing.common\\6.0.0\\system.drawing.common.6.0.0.nupkg.sha512",
+    "C:\\Users\\Dell\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\5.0.0\\system.runtime.compilerservices.unsafe.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
