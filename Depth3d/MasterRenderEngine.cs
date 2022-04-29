@@ -1,5 +1,4 @@
 ﻿using Depth3d.Entities;
-using Depth3d.Models;
 using Depth3d.shaders;
 using OpenTK.Mathematics;
 using System;
@@ -27,9 +26,14 @@ namespace Depth3d
 
         public MasterRenderEngine(int width, int height)
         {
-            _projectionMatrix = Maths.Math.createProjectionMatrix(width, height, FOV, NearPlane, FarPlane);
+            SetProjectionMatrix(Maths.Math.createProjectionMatrix(width, height, FOV, NearPlane, FarPlane));
             _shader = new StaticShader();
             _entityRenderEngine = new EntityRenderEngine(_shader, _projectionMatrix);
+        }
+
+        public void SetProjectionMatrix(Matrix4 projectionMatrix)
+        {
+            _projectionMatrix = projectionMatrix;
         }
 
         public void Render(Light directionalLight, Camera camera)

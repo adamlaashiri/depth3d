@@ -60,7 +60,7 @@ namespace Depth3d.shaders
         }
 
         // Load uniforms
-        protected void LoadDouble(int location, double value)
+        protected void LoadDouble(int location, float value)
         {
             GL.Uniform1(location, value);
         }

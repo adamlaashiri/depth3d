@@ -7,7 +7,7 @@ namespace Depth3d
 {
     public class Window
     {
-        private const int RENDERFREQUENCY = 60;
+        private const int RENDERFREQUENCY = 120;
         private const int UPDATEFREQUENCY = 60;
 
         public static GameWindow CreateWindow(string title, int width, int height)

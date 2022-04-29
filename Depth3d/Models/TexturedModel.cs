@@ -4,20 +4,28 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Depth3d.Models
+namespace Depth3d
 {
     public class TexturedModel
     {
-        private Model _model;
+        private Mesh _mesh;
         private Texture _texture;
 
-        public Model Model { get => _model; }
+        Dictionary<string, (Mesh, Texture)> _subModels;
+
+        public Mesh Mesh { get => _mesh; }
         public Texture Texture { get => _texture; }
 
-        public TexturedModel(Model model, Texture texture)
+        public TexturedModel(Mesh mesh, Texture texture)
         {
-            _model = model;
+            _mesh = mesh;
             _texture = texture;
+            _subModels = new Dictionary<string, (Mesh, Texture)>();
+        }
+
+        public void AddSubMesh(string name, Mesh mesh, Texture texture)
+        {
+            _subModels.Add(name, (Mesh, texture));
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Depth3d.Maths
             matrix *= Matrix4.CreateTranslation(new Vector3(-camera.Position.X, -camera.Position.Y, -camera.Position.Z));
             matrix *= Matrix4.CreateRotationX(ToRadians(camera.Rotation.X));
             matrix *= Matrix4.CreateRotationY(ToRadians(camera.Rotation.Y));
-            //matrix *= Matrix4.CreateRotationZ(ToRadians(camera.Rotation.Z));
+            matrix *= Matrix4.CreateRotationZ(ToRadians(camera.Rotation.Z));
             return matrix;
         }
 

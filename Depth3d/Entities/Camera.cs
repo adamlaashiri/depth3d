@@ -10,8 +10,6 @@ namespace Depth3d.Entities
 
         // movement with inertia
         private Vector3 _speed = new Vector3(0, 0, 0);
-        private float _speedCap = 5;
-        private float _decelerationFactor = 0.85f;
 
         public Vector3 Position { get => _position; set { _position = value; } }
         public Vector3 Rotation { get => _rotation; set { _rotation = value; } }
@@ -33,8 +31,6 @@ namespace Depth3d.Entities
         {
             _rotation += rotation;
         }
-
-        // Movement with inertia
         public void UpdateSpeed(float speed)
         {
             var keyboardState = Input.KeyboardState;

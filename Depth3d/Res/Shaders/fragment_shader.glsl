@@ -2,15 +2,17 @@
 
 in vec2 texcoords;
 
-// lighting
+// Lighting
 in vec3 surfaceNormal;
-in vec3 toLightVector;
 in vec3 toCameraVector;
 
 out vec4 color_out;
 
 uniform sampler2D tex;
+uniform vec3 lightDirection;
 uniform vec3 lightColor;
+
+// Speccularity
 uniform float shineDamper;
 uniform float reflectivity;
 
@@ -19,21 +21,24 @@ void main(void)
 	
 	// Diffuse light
 	vec3 normalizedSurfaceNormal = normalize(surfaceNormal);
-	vec3 normalizedToLightVector = normalize(toLightVector);
+	vec3 normalizedLightDirection = normalize(lightDirection);
 
-	float nDot1 = dot(normalizedSurfaceNormal, normalizedToLightVector);
-	float brightness = max(nDot1, 0.12);
+	float nDot1 = dot(normalizedSurfaceNormal, -normalizedLightDirection);
+	float brightness = max(nDot1, 0.03);
 	vec3 diffuse = brightness * lightColor;
 
 	// speccularity
+	vec3 normalizedHalfwayDir = normalize(-normalizedLightDirection + normalize(toCameraVector));
 	vec3 normalizedToCameraVector = normalize (toCameraVector);
-	vec3 lightDirection = -normalizedToLightVector;
-	vec3 reflectedLightDirection = reflect(lightDirection, normalizedSurfaceNormal);
 
-	float specularFactor = dot(reflectedLightDirection, normalizedToCameraVector);
+	//old phong model
+	//vec3 reflectedLightDirection = reflect(normalizedLightDirection, normalizedSurfaceNormal);
+	//float specularFactor = dot(reflectedLightDirection, normalizedToCameraVector);
+
+	float specularFactor = dot(normalizedSurfaceNormal, normalizedHalfwayDir);
 	specularFactor = max(specularFactor, 0.0);
 	float dampedFactor = pow(specularFactor, shineDamper);
-	vec3 finalSpecular = dampedFactor * reflectivity * lightColor;
+	vec3 speccularity = dampedFactor * reflectivity * lightColor;
 
-	color_out = vec4(diffuse, 1.0) * texture(tex, texcoords);
+	color_out = vec4(diffuse, 1.0) * texture(tex, texcoords) + vec4(speccularity, 1.0) + vec4(0.25,0,0,1);
 }

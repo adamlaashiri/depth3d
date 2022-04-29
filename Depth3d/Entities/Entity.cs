@@ -1,6 +1,5 @@
 ﻿using BepuPhysics;
 using BepuPhysics.Collidables;
-using Depth3d.Models;
 using OpenTK.Mathematics;
 
 namespace Depth3d.Entities

@@ -9,8 +9,8 @@ namespace Depth3d
     public class Texture
     {
         private int _textureId;
-        private float _shineDamper = 1;
-        private float _reflectivity = 0;
+        private float _shineDamper = 256f;
+        private float _reflectivity = 1f;
 
         public int TextureId { get => _textureId; }
         public float ShineDamper { get => _shineDamper; set { _shineDamper = value; } }

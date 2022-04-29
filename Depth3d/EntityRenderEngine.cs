@@ -1,5 +1,4 @@
 ﻿using Depth3d.Entities;
-using Depth3d.Models;
 using Depth3d.shaders;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
@@ -44,7 +43,7 @@ namespace Depth3d
                     prepareInstance(entity);
 
                     // Draw via elements (indices) as opposed to DrawArray (vertices)
-                    GL.DrawElements(BeginMode.Triangles, model.Model.VertexCount, DrawElementsType.UnsignedInt, 0);
+                    GL.DrawElements(BeginMode.Triangles, model.Mesh.VertexCount, DrawElementsType.UnsignedInt, 0);
                 }
                 UnbindModel();
             }
@@ -53,7 +52,7 @@ namespace Depth3d
         private void PrepareModel(TexturedModel model)
         {
             // Bind model data
-            GL.BindVertexArray(model.Model.VaoId);
+            GL.BindVertexArray(model.Mesh.VaoId);
             GL.EnableVertexAttribArray(0);
             GL.EnableVertexAttribArray(1);
             GL.EnableVertexAttribArray(2);
