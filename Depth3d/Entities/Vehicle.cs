@@ -130,6 +130,7 @@ namespace Depth3d.Entities
                     JVector traction = _fx * new JVector(-Forward.X, -Forward.Y, -Forward.Z);
                     JVector sideTraction = new JVector(0,0,0);
 
+
                     if (i == 0 || i == 1)
                         sideTraction = _fy * new JVector(WheelEntites[i].Right.X, WheelEntites[i].Right.Y, WheelEntites[i].Right.Z);
 
