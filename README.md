@@ -9,7 +9,7 @@ Entity Component System (ECS).
 ## Demo
 https://user-images.githubusercontent.com/56280397/189562772-94200c50-4bdf-4a66-bfa9-ec8a47dbd8ba.mp4
 
-*Vehicle physics still needs work. Sideways friction and wheels rotations will be fixed once I use quaternions to store rotations(using euler angles now).*
+*Vehicle physics still needs work. Sideways friction and wheels rotations will be fixed once I use quaternions to store rotations (euler angles now).*
 
 ## TODO :
 + Store entities rotations as quaternions.
