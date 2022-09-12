@@ -44,6 +44,14 @@
               "target": "Package",
               "version": "[2.4.0, )"
             },
+            "CjClutter.ObjLoader": {
+              "target": "Package",
+              "version": "[1.0.0, )"
+            },
+            "JitterPhysics": {
+              "target": "Package",
+              "version": "[0.2.0.20, )"
+            },
             "OpenTK": {
               "target": "Package",
               "version": "[4.7.1, )"
@@ -59,7 +67,8 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
@@ -68,7 +77,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.200\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.400\\RuntimeIdentifierGraph.json"
         }
       }
     }

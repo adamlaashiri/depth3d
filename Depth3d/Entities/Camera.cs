@@ -8,29 +8,19 @@ namespace Depth3d.Entities
         private Vector3 _position = new Vector3(0, 0, 5);
         private Vector3 _rotation = new Vector3(0, 0, 0);
 
-        // movement with inertia
-        private Vector3 _speed = new Vector3(0, 0, 0);
-
         public Vector3 Position { get => _position; set { _position = value; } }
         public Vector3 Rotation { get => _rotation; set { _rotation = value; } }
 
-        public Vector3 Forward { get => Maths.Math.ForwardVector(this); }
         public Vector3 Right { get => Maths.Math.RightVector(this); }
+        public Vector3 Forward { get => Maths.Math.ForwardVector(this); }
+        public Vector3 Up { get => Vector3.Cross(Forward, Right); }
+
         public Camera(Vector3 position, Vector3 rotation)
         {
             _position = position;
             _rotation = rotation;
         }
 
-        public void AddPosition(Vector3 position)
-        {
-            _position += position;
-        }
-
-        public void AddRotation(Vector3 rotation)
-        {
-            _rotation += rotation;
-        }
         public void UpdateSpeed(float speed)
         {
             var keyboardState = Input.KeyboardState;
@@ -59,5 +49,14 @@ namespace Depth3d.Entities
             if (keyboardState.IsKeyDown(Keys.Right))
                 _rotation += new Vector3(0, 1, 0);
         }
+
+        public void LookAt(Entity target)
+        {
+            Matrix4 mat = Matrix4.LookAt(Position, target.Position, Vector3.UnitY);
+            Quaternion orientation = mat.ExtractRotation();
+            Rotation = Maths.Math.QuaternionToEuler(orientation.X, orientation.Y, orientation.Z, orientation.W);
+        }
+
+        public override string ToString() => $"X:{_position.X}, Y:{_position.Y}, Z:{_position.Z}";
     }
 }

@@ -1,82 +1,125 @@
-﻿using BepuPhysics;
-using BepuPhysics.Collidables;
-using Depth3d;
+﻿using Depth3d;
 using Depth3d.Entities;
 using Depth3d.Physics;
-using Depth3d.shaders;
 using Depth3d.Utils;
+using Jitter.Collision.Shapes;
+using Jitter.Dynamics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
+using Mesh = Depth3d.Mesh;
+using Window = Depth3d.Window;
 
-GameWindow window = Window.CreateWindow("DEPTH", 1200, 1000);
+GameWindow window = Window.CreateWindow("DEPTH3D", 1200, 1000);
 
 // Loader, render engine and physics engine
 Loader loader = new Loader();
 MasterRenderEngine renderEngine = new MasterRenderEngine(window.Size.X, window.Size.Y);
-PhysicsEngine physicsEngine = new PhysicsEngine(window.UpdateFrequency);
+PhysicsEngine jitter = new(window.UpdateFrequency);
 
-// Models and textures
+// Physics stuff
+Shape shape = new BoxShape(1, 1, 1);
+Shape planeShape = new BoxShape(1000, 0.001f, 1000);
+Shape vehicleShape = new BoxShape(2f, 1.45f, 5.5f);
+List<RigidBody> bodies = new();
 
-Depth3d.Mesh platformModel = Wavefront.LoadObj("plane.obj", loader);
-Texture platformTexture = loader.LoadTexture("concrete.jpg");
+// Load resources
+Mesh vehicleModel = PolygonFileFormat.LoadPly("CoupeBlue/CoupeBlue.ply", loader);
+Texture vehicleTexture = loader.LoadTexture("CoupeBlue/CoupeBlue.png");
+vehicleTexture.ShineDamper = 128f;
+vehicleTexture.Reflectivity = 0.45f;
 
-Depth3d.Mesh model = Wavefront.LoadObj("untitled.obj", loader);
+Mesh wheelModel = PolygonFileFormat.LoadPly("CoupeBlue/wheel.ply", loader);
+Mesh wheelModelFlipped = PolygonFileFormat.LoadPly("CoupeBlue/wheelFlipped.ply", loader);
+Texture wheelTexture = loader.LoadTexture("CoupeBlue/wheel_1_Diffuse.png");
+
+
+Mesh platformModel = Wavefront.LoadObj("plane.obj", loader);
+Texture platformTexture = loader.LoadTexture("Textures/asphalt-seamless.jpg");
+platformTexture.Reflectivity = 0.1f;
+
+Mesh model = Wavefront.LoadObj("untitled.obj", loader);
 Texture texture = loader.LoadTexture("box_textures/crate.png");
 texture.ShineDamper = 128f;
 texture.Reflectivity = 0.45f;
 
-Depth3d.Mesh dragonModel = Wavefront.LoadObj("dragon.obj", loader);
-Texture dragonTexture = loader.LoadTexture("dragon.png");
-
-TexturedModel platformTexturedModel = new TexturedModel(platformModel, platformTexture);
 TexturedModel crate = new TexturedModel(model, texture);
-TexturedModel dragon = new TexturedModel(dragonModel, dragonTexture);
+TexturedModel vehicleTexturedModel = new TexturedModel(vehicleModel, vehicleTexture);
+TexturedModel wheelTexturedModel = new TexturedModel(wheelModel, wheelTexture);
+TexturedModel wheelFlippedTexturedModel = new TexturedModel(wheelModelFlipped, wheelTexture);
+TexturedModel platformTexturedModel = new TexturedModel(platformModel, platformTexture);
 
 // Entities
-Camera camera = new Camera(new Vector3(40, 25, 100), new Vector3(0, 0, 0));
+#region Camera & lighting
+Camera camera = new Camera(new Vector3(39.75f, -5f, 12.25f), new Vector3(0, 0, 0));
 Light directionalLight = new Light(new Vector3(1, -1, -1), new Vector3(1, 1, 1));
+#endregion
 
-Entity platform = new Entity(platformTexturedModel, new Vector3(0, -10, 0), new Vector3(0f, 0f, 0f), 1f, true);
-Entity dragonObject = new Entity(dragon, new Vector3(0, 0, 0), new Vector3(0f, 0f, 0f), 4f, true);
+#region Vehicle
+
+// Wheels
+Entity wheelFrontLeft   = new Entity(crate, new Vector3(), new Vector3(), 0.1f);
+Entity wheelFrontRight  = new Entity(crate, new Vector3(), new Vector3(), 0.1f);
+Entity wheelRearLeft    = new Entity(crate, new Vector3(), new Vector3(), 0.1f);
+Entity wheelRearRight   = new Entity(crate, new Vector3(), new Vector3(), 0.1f);
+
+Vehicle vehicle = new Vehicle(vehicleTexturedModel, new Vector3(40f, -8, 0f), new Vector3(0f, 0f, 0f), 1f) { WheelEntites = new Entity[4] {wheelFrontLeft, wheelFrontRight, wheelRearLeft, wheelRearRight }, WheelRadius = 0.4f, RestLength = 0.7f, SpringTravel = 0.5f, SpringStiffness = 30000, DamperStiffness = 900f, WheelBase = 2.62f, RearTrack = 1.525f, TurnRadius = 10.8f};
+
+RigidBody vehicleBody = new RigidBody(vehicleShape);
+vehicleBody.Mass = 1400;
+vehicle.RigidBody = vehicleBody;
+
+#endregion
+
+#region Other entities
+Entity platform = new Entity(platformTexturedModel, new Vector3(0, -10, 0), new Vector3(0f, 0f, 0f), 1f);
+RigidBody platformBody = new RigidBody(planeShape);
+platformBody.IsStatic = true;
+platform.RigidBody = platformBody;
+#endregion
 
 List<Entity> entities = new List<Entity>();
-entities.Add(platform);
 
-// Physics stuff
-physicsEngine.Init();
-physicsEngine.AddStatic(new Vector3(platform.Position.X, platform.Position.Y, platform.Position.Z), new Vector3(512, 0.1f, 512));
-
-var boxShape = new Box(4, 4, 4);
-var boxInertia = boxShape.ComputeInertia(1);
-var boxIndex = physicsEngine.AddShape(boxShape);
 
 for (int i = 0; i < 200; i++)
 {
     Random rand = new Random();
-    var x = (float)rand.NextDouble() * 50;
-    var y = (float)rand.NextDouble() * 50 + 50;
-    var z = (float)rand.NextDouble() * 50;
+    var x = (float)rand.NextDouble() * 12.5f;
+    var y = (float)rand.NextDouble() * 12.5f + 12.5f;
+    var z = (float)rand.NextDouble() * 12.5f;
     var xRot = 0;
     var yRot = 0;
     var zRot = 0;
 
-    Entity tmpObject = new Entity(crate, new Vector3(x, y, z), new Vector3(xRot, yRot, zRot), 2f, false);
-    tmpObject.BodyHandle = physicsEngine.AddBody(BodyDescription.CreateDynamic(
-        new System.Numerics.Vector3(x, y, z),
-        boxInertia,
-        boxIndex,
-        0.01f
-    ));
+    Material physMat = new Material();
+    RigidBody tmpBody = new RigidBody(shape);
+    Entity tmpObject = new Entity(crate, new Vector3(x, y, z), new Vector3(xRot, yRot, zRot), 0.5f);
+    tmpObject.RigidBody = tmpBody;
+    physMat.KineticFriction = 100;
+    tmpBody.Material = physMat;
+    tmpBody.Mass = 20f;
 
+    bodies.Add(tmpBody);
     entities.Add(tmpObject);
 }
 
+entities.Add(platform);
+entities.Add(vehicle);
+entities.Add(wheelFrontLeft);
+entities.Add(wheelFrontRight);
+entities.Add(wheelRearLeft);
+entities.Add(wheelRearRight);
+
+bodies.Add(platformBody);
+bodies.Add(vehicleBody);
+jitter.Init(bodies);
 double fps = 0.0;
 
 // Events
-//window.Load += WindowLoad;
+window.Load += WindowLoad;
+
 window.UpdateFrame += UpdateFrame;
 window.RenderFrame += RenderFrame;
 window.Closing += WindowClosing;
@@ -86,6 +129,12 @@ window.Resize += WindowResize;
 window.Run();
 window.CenterWindow();
 
+void WindowLoad()
+{
+    vehicle.Start();
+
+}
+
 void UpdateFrame(FrameEventArgs obj)
 {
     if (window.IsExiting)
@@ -94,11 +143,14 @@ void UpdateFrame(FrameEventArgs obj)
     Input.KeyboardState = window.KeyboardState;
 
     // Physics
-    physicsEngine.Update();
-    physicsEngine.UpdateEntities(entities);
-    
+    jitter.Update();
+
+    for (int i = 0; i < entities.Count; i++)
+        entities[i].Update();
+
     // Game logic
-    camera.UpdateSpeed(1f);
+    camera.LookAt(vehicle);
+    vehicle.Update(jitter);
 }
 
 void RenderFrame(FrameEventArgs obj)
@@ -114,15 +166,16 @@ void RenderFrame(FrameEventArgs obj)
     window.SwapBuffers();
 
     //meta
-    fps = 1.0/window.RenderTime;
+    fps = 1.0 / window.RenderTime;
     //Console.WriteLine("FPS " + fps);
+    //Console.WriteLine(camera.ToString());
 }
 
 void WindowClosing(System.ComponentModel.CancelEventArgs obj)
 {
     loader.CleanUp();
     renderEngine.CleanUp();
-    physicsEngine.Dispose();
+    jitter.CleanUp();
 }
 
 void WindowResize(ResizeEventArgs obj)

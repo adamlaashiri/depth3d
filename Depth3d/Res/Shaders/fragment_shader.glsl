@@ -24,7 +24,7 @@ void main(void)
 	vec3 normalizedLightDirection = normalize(lightDirection);
 
 	float nDot1 = dot(normalizedSurfaceNormal, -normalizedLightDirection);
-	float brightness = max(nDot1, 0.03);
+	float brightness = max(nDot1, 0.15);
 	vec3 diffuse = brightness * lightColor;
 
 	// speccularity
@@ -40,5 +40,5 @@ void main(void)
 	float dampedFactor = pow(specularFactor, shineDamper);
 	vec3 speccularity = dampedFactor * reflectivity * lightColor;
 
-	color_out = vec4(diffuse, 1.0) * texture(tex, texcoords) + vec4(speccularity, 1.0) + vec4(0.25,0,0,1);
+	color_out = vec4(diffuse, 1.0) * texture(tex, texcoords) + vec4(speccularity, 1.0);
 }

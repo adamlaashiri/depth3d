@@ -10,6 +10,8 @@
 
   <ItemGroup>
     <PackageReference Include="BepuPhysics" Version="2.4.0" />
+    <PackageReference Include="CjClutter.ObjLoader" Version="1.0.0" />
+    <PackageReference Include="JitterPhysics" Version="0.2.0.20" />
     <PackageReference Include="OpenTK" Version="4.7.1" />
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
   </ItemGroup>
