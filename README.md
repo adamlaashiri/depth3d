@@ -10,7 +10,7 @@ https://user-images.githubusercontent.com/56280397/190067085-ed1bf780-f25d-410a-
 
 
 
-*Vehicle physics still needs work... Wheel spinning is not accurate enough, but more on that once I implement a transform hierarchy
+* Vehicle physics still needs work... Wheel spinning is not accurate enough, but more on that once I implement a transform hierarchy
 
 ## TODO :
 + [x] Store entities rotations as quaternions.
