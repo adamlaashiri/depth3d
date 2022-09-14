@@ -67,7 +67,7 @@ namespace Depth3d
 
         private void prepareInstance(Entity entity)
         {
-            Matrix4 tranformationMatrix = Maths.Math.createTransformationMatrix(entity.Position, entity.Rotation, entity.Scale);
+            Matrix4 tranformationMatrix = Maths.Math.createTransformationMatrix(entity.Position, entity.Orientation, entity.Scale);
             _shader.LoadTransformationMatrix(tranformationMatrix);
         }
 

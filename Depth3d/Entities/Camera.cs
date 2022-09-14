@@ -53,8 +53,7 @@ namespace Depth3d.Entities
         public void LookAt(Entity target)
         {
             Matrix4 mat = Matrix4.LookAt(Position, target.Position, Vector3.UnitY);
-            Quaternion orientation = mat.ExtractRotation();
-            Rotation = Maths.Math.QuaternionToEuler(orientation.X, orientation.Y, orientation.Z, orientation.W);
+            Rotation = Maths.Math.Quaternion2Euler(mat.ExtractRotation());
         }
 
         public override string ToString() => $"X:{_position.X}, Y:{_position.Y}, Z:{_position.Z}";

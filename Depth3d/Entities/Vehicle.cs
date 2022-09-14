@@ -18,7 +18,8 @@ namespace Depth3d.Entities
 {
     public class Vehicle : Entity
     {
-        // Because of a lack of an entity component system (transform hierarchy), we have to store positions/velocities of respective wheel
+        // Because of a lack of a transform hierarchy, we have to store positions/velocities of respective wheel and manipulating wheel rotation will prove diffuvult without "hacks",
+
         public new RigidBody RigidBody
         {
             get => _rigidBody;
@@ -26,8 +27,7 @@ namespace Depth3d.Entities
             {
                 // Set the rigidbody position to that of the entity and disallow deactivation (specific to vehicle class)
                 value.AllowDeactivation = false;
-                value.Position = new JVector(_position.X, _position.Y, _position.Z);
-                _rigidBody = value;
+                base.RigidBody = value;
             }
         }
         public Entity[] WheelEntites { get; init; }
@@ -45,8 +45,8 @@ namespace Depth3d.Entities
         public float DamperStiffness { get; set; }
 
         private float _minLength;
-        private float _springLength;
         private float _maxLength = 3f;
+        private float _springLength;
         private float _springForce;
         private float _springVelocity;
         private float _damperForce;
@@ -66,13 +66,14 @@ namespace Depth3d.Entities
         // Driving
         private float _fx;
         private float _fy;
+        private float _slideFactor = 1f;
 
+        private float _elapsed;
 
         public Vehicle(TexturedModel model, Vector3 position, Vector3 rotation, float scale) : base(model, position, rotation, scale) {}
 
         public void Start()
         {
-            _debug = true;
             // Start velocity & suspension distance for respective wheel
             for (int i = 0; i < 4; i++)
             {
@@ -98,21 +99,40 @@ namespace Depth3d.Entities
             UpdateWheelPositions();
             float driveInput = input.IsKeyDown(Keys.W) ? 1f : input.IsKeyDown(Keys.S) ? -1f : 0f;
             float steerInput = input.IsKeyDown(Keys.A) ? -1f : input.IsKeyDown(Keys.D) ? 1f : 0f;
+            _elapsed += 0.008f;
 
             for (int i = 0; i < 4; i++)
             {
-                if (i == 0)
-                    WheelEntites[i].Rotation = new Vector3(Rotation.X, Rotation.Y - _ackermanAngleLeft, Rotation.Z);
-                else if (i == 1)
-                    WheelEntites[i].Rotation = new Vector3(Rotation.X, Rotation.Y - _ackermanAngleRight, Rotation.Z);
-                else
-                    WheelEntites[i].Rotation = new Vector3(Rotation.X, Rotation.Y, Rotation.Z);
-
                 Vector3 curr = _wheels[i];
-                Vector3 wheelLinearVelocity = Quaternion.FromEulerAngles(Rotation.X, Rotation.Y, Rotation.Z) * (curr - _oldWheelPos[i]) / 0.008f;
-                
-                RaycastHit hit = engine.Raycast(new JVector(curr.X, curr.Y, curr.Z), new JVector(Up.X, Up.Y, Up.Z) * -1, RigidBody);
 
+                // Rotate front wheels according to steering angles
+                if (i == 0)
+                {
+                    WheelEntites[i].Orientation = Orientation;
+                    WheelEntites[i].Rotate(new Vector3(0, -_ackermanAngleLeft, 0));
+                }
+                else if (i == 1)
+                {
+                    WheelEntites[i].Orientation = Orientation;
+                    WheelEntites[i].Rotate(new Vector3(0, -_ackermanAngleRight, 0));
+                }
+                else
+                {
+                    WheelEntites[i].Orientation = Orientation;
+                }
+
+                // Get linear velocity for current wheel in local space (by multiplying orientation with velocity vector)
+                Quaternion q = WheelEntites[i].Orientation;
+                q.Invert();
+                Vector3 wheelLinearVelocity = q * ((curr - _oldWheelPos[i]) / 0.008f);
+                
+                // Rotate wheel according to z component of linear velocity
+                float rotateFactor = -wheelLinearVelocity.Z / (2 * MathF.PI * WheelRadius) * 0.008f * 3600f;
+                WheelEntites[i].Rotate(new Vector3(_elapsed * rotateFactor, 0,0));
+                if (i==0)
+                    Console.WriteLine(rotateFactor);
+
+                RaycastHit hit = engine.Raycast(new JVector(curr.X, curr.Y, curr.Z), new JVector(Up.X, Up.Y, Up.Z) * -1, RigidBody);
                 if (hit.RigidBody != null && hit.Distance <= _maxLength + WheelRadius)
                 {
 
@@ -124,15 +144,11 @@ namespace Depth3d.Entities
 
                     _suspensionForce = (_springForce + _damperForce) * Up;
 
-                    _fx = driveInput * _springForce * 0.5f;
-                    _fy = steerInput * _springForce * 10f;
+                    _fx = driveInput * _springForce;
+                    _fy = wheelLinearVelocity.X * _springForce * _slideFactor;
 
                     JVector traction = _fx * new JVector(-Forward.X, -Forward.Y, -Forward.Z);
-                    JVector sideTraction = new JVector(0,0,0);
-
-
-                    if (i == 0 || i == 1)
-                        sideTraction = _fy * new JVector(WheelEntites[i].Right.X, WheelEntites[i].Right.Y, WheelEntites[i].Right.Z);
+                    JVector sideTraction = _fy * new JVector(-WheelEntites[i].Right.X, -WheelEntites[i].Right.Y, -WheelEntites[i].Right.Z); // Used forward vectors of wheel before, but wheel rotation messes with that
 
                     RigidBody.AddForce(new JVector(_suspensionForce.X, _suspensionForce.Y, _suspensionForce.Z) + traction + sideTraction, hit.Point);
 
@@ -140,7 +156,6 @@ namespace Depth3d.Entities
                     WheelEntites[i].Position = curr - Up * (_springLength);
                     _oldDist[i] = _springLength;
                 }
-                
             }
 
             UpdateWheelVelocities();
@@ -160,10 +175,12 @@ namespace Depth3d.Entities
                 _ackermanAngleLeft = 0f;
                 _ackermanAngleRight = 0f;
             }
-            if (input.IsKeyDown(Keys.G))
-            {
-                RigidBody.AddTorque(new JVector(-8000, 0, 0));
-            }
+
+            // Drifting is a must
+            if (input.IsKeyDown(Keys.Space))
+                _slideFactor = MathF.Max(_slideFactor * 0.95f, 0.025f);
+            else
+                _slideFactor = MathF.Min(_slideFactor * 1.1f, 0.3f);
 
         }
 

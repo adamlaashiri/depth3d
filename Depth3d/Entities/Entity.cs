@@ -6,12 +6,14 @@ using System.Diagnostics;
 
 namespace Depth3d.Entities
 {
-    // Composite design pattern could work for a parent/children structure
+    // Composite design pattern will be implemented later on
     public class Entity
     {
         protected readonly TexturedModel _model;
+        public TexturedModel Model { get => _model; }
+
         protected Vector3 _position;
-        protected Vector3 _rotation;
+        protected Quaternion _rotation;
         protected float _scale;
         
         protected RigidBody _rigidBody;
@@ -21,13 +23,23 @@ namespace Depth3d.Entities
             {
                 // Set the rigidbody position to that of the entity
                 value.Position = new JVector(_position.X, _position.Y, _position.Z);
+                value.Orientation = JMatrix.CreateFromQuaternion(new JQuaternion(_rotation.X, _rotation.Y, _rotation.Z, _rotation.W));
                 _rigidBody = value; 
             } 
         }
 
-        public TexturedModel Model { get => _model; }
         public Vector3 Position { get => _position; set { _position = value; } }
-        public Vector3 Rotation { get => _rotation; set { _rotation = value; } }
+        
+        // Rotation is stored as a quaternion, but manipulated through euler angles
+        public Quaternion Orientation { get => _rotation; set { _rotation = value; } }
+        public Vector3 EulerRotation { 
+            set 
+            {
+                Vector3 rad = Maths.Math.ToRadians(value);
+                _rotation = Quaternion.FromEulerAngles(rad.X, rad.Y, rad.Z); 
+            } 
+        }
+        
         public float Scale { get => _scale; }
 
         // Relative directional vectors
@@ -37,34 +49,29 @@ namespace Depth3d.Entities
 
         protected bool _debug = false;
 
-        public Entity(TexturedModel model, Vector3 position, Vector3 rotation, float scale)
+        public Entity(TexturedModel model, Vector3 position, Vector3 eulerOrientation, float scale)
         {
             _model = model;
             _position = position;
-            _rotation = rotation;
+            EulerRotation = eulerOrientation;
             _scale = scale;
         }
-
+        
         public void Update()
         {
             if (_rigidBody != null)
             {
                 _rigidBody.Update();
                 _position = new(_rigidBody.Position.X, _rigidBody.Position.Y, _rigidBody.Position.Z);
-                var q = Jitter.LinearMath.JQuaternion.CreateFromMatrix(_rigidBody.Orientation);
-                _rotation = Maths.Math.QuaternionToEuler(q.X, q.Y, q.Z, q.W);
-
-                if (_debug)
-                {
-                    Vector3 debugVector = new Quaternion(q.X, q.Y, q.Z, q.W).ToEulerAngles();
-                    debugVector.X = Maths.Math.Rad2Deg(debugVector.X);
-                    debugVector.Y = Maths.Math.Rad2Deg(debugVector.Y);
-                    debugVector.Z = Maths.Math.Rad2Deg(debugVector.Z);
-                    
-                    Console.WriteLine($"{debugVector.Y}");
-
-                }
+                JQuaternion o = JQuaternion.CreateFromMatrix(_rigidBody.Orientation);
+                _rotation = new Quaternion(o.X, o.Y, o.Z, o.W);
             }
+        }
+        
+        public void Rotate(Vector3 angles)
+        {
+            Vector3 rad = Maths.Math.ToRadians(angles);
+            _rotation = _rotation * Quaternion.FromEulerAngles(new Vector3(rad.X, rad.Y, rad.Z));
         }
 
         public override string ToString() => $"X:{_position.X}, Y:{_position.Y}, Z:{_position.Z}";

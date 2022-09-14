@@ -25,7 +25,9 @@ Shape planeShape = new BoxShape(1000, 0.001f, 1000);
 Shape vehicleShape = new BoxShape(2f, 1.45f, 5.5f);
 List<RigidBody> bodies = new();
 
+#region resources
 // Load resources
+
 Mesh vehicleModel = PolygonFileFormat.LoadPly("CoupeBlue/CoupeBlue.ply", loader);
 Texture vehicleTexture = loader.LoadTexture("CoupeBlue/CoupeBlue.png");
 vehicleTexture.ShineDamper = 128f;
@@ -50,22 +52,23 @@ TexturedModel vehicleTexturedModel = new TexturedModel(vehicleModel, vehicleText
 TexturedModel wheelTexturedModel = new TexturedModel(wheelModel, wheelTexture);
 TexturedModel wheelFlippedTexturedModel = new TexturedModel(wheelModelFlipped, wheelTexture);
 TexturedModel platformTexturedModel = new TexturedModel(platformModel, platformTexture);
+#endregion
 
 // Entities
 #region Camera & lighting
-Camera camera = new Camera(new Vector3(39.75f, -5f, 12.25f), new Vector3(0, 0, 0));
+Camera camera = new Camera(new Vector3(25.75f, 2f, 12.25f), new Vector3(0, 0, 0));
 Light directionalLight = new Light(new Vector3(1, -1, -1), new Vector3(1, 1, 1));
 #endregion
 
 #region Vehicle
 
 // Wheels
-Entity wheelFrontLeft   = new Entity(crate, new Vector3(), new Vector3(), 0.1f);
-Entity wheelFrontRight  = new Entity(crate, new Vector3(), new Vector3(), 0.1f);
-Entity wheelRearLeft    = new Entity(crate, new Vector3(), new Vector3(), 0.1f);
-Entity wheelRearRight   = new Entity(crate, new Vector3(), new Vector3(), 0.1f);
+Entity wheelFrontLeft   = new Entity(wheelFlippedTexturedModel, new Vector3(), new Vector3(), 1f);
+Entity wheelFrontRight  = new Entity(wheelTexturedModel, new Vector3(), new Vector3(), 1f);
+Entity wheelRearLeft    = new Entity(wheelFlippedTexturedModel, new Vector3(), new Vector3(), 1f);
+Entity wheelRearRight   = new Entity(wheelTexturedModel, new Vector3(), new Vector3(), 1f);
 
-Vehicle vehicle = new Vehicle(vehicleTexturedModel, new Vector3(40f, -8, 0f), new Vector3(0f, 0f, 0f), 1f) { WheelEntites = new Entity[4] {wheelFrontLeft, wheelFrontRight, wheelRearLeft, wheelRearRight }, WheelRadius = 0.4f, RestLength = 0.7f, SpringTravel = 0.5f, SpringStiffness = 30000, DamperStiffness = 900f, WheelBase = 2.62f, RearTrack = 1.525f, TurnRadius = 10.8f};
+Vehicle vehicle = new Vehicle(vehicleTexturedModel, new Vector3(-10f, -8, -10f), new Vector3(0f, 90f, 0f), 1f) { WheelEntites = new Entity[4] {wheelFrontLeft, wheelFrontRight, wheelRearLeft, wheelRearRight }, WheelRadius = 0.4f, RestLength = 0.45f, SpringTravel = 0.4f, SpringStiffness = 30000, DamperStiffness = 900f, WheelBase = 2.62f, RearTrack = 1.225f, TurnRadius = 4.8f}; //1.525 10.8
 
 RigidBody vehicleBody = new RigidBody(vehicleShape);
 vehicleBody.Mass = 1400;
@@ -82,8 +85,7 @@ platform.RigidBody = platformBody;
 
 List<Entity> entities = new List<Entity>();
 
-
-for (int i = 0; i < 200; i++)
+for (int i = 0; i < 250; i++)
 {
     Random rand = new Random();
     var x = (float)rand.NextDouble() * 12.5f;
@@ -97,7 +99,7 @@ for (int i = 0; i < 200; i++)
     RigidBody tmpBody = new RigidBody(shape);
     Entity tmpObject = new Entity(crate, new Vector3(x, y, z), new Vector3(xRot, yRot, zRot), 0.5f);
     tmpObject.RigidBody = tmpBody;
-    physMat.KineticFriction = 100;
+    physMat.KineticFriction = 5;
     tmpBody.Material = physMat;
     tmpBody.Mass = 20f;
 
