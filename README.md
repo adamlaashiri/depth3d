@@ -2,7 +2,7 @@
 Game engine with rendering and physics [WIP]. Using OpenGL and JitterPhysics.
 
 ## About
-This a hobby project that I have been working on. This engine is far from perfect or finished, but provides the perfect grounds for learning programming (OOP), opengl, linear math, physics and 
+This is a hobby project that I have been working on. This engine is far from perfect or finished, but provides the perfect grounds for learning programming (OOP), opengl, linear math, physics and 
 most importantly, a good architectural pattern for a game engine. I am developing this engine with abstraction, inheritance, hierarchies and composition in mind. The goal is to implement an Entity Component System (ECS).
 
 ## Demo
