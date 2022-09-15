@@ -14,7 +14,7 @@ https://user-images.githubusercontent.com/56280397/190340132-cdf59916-6823-4f44-
 
 ## TODO :
 + [x] Store entities rotations as quaternions.
-+ [ ] Add support for multiple light sources.
++ [ ] Implement physically based shading.
 + [ ] Implement opengl frame buffers.
 + [ ] Restructure namespaces & classes.
 + [ ] Implement Scene graph / transform hierarchy
