@@ -10,7 +10,7 @@ https://user-images.githubusercontent.com/56280397/190340132-cdf59916-6823-4f44-
 
 https://user-images.githubusercontent.com/56280397/190798597-9686709e-813a-420a-b370-caf3ed2f5bae.mp4
 
-*Vehicle physics are highly customizable*
+*Vehicle physics are highly customizable.*
 
 
 ## TODO :
