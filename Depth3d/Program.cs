@@ -12,7 +12,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using Mesh = Depth3d.Mesh;
 using Window = Depth3d.Window;
 
-GameWindow window = Window.CreateWindow("DEPTH3D", 1200, 1000);
+GameWindow window = Window.CreateWindow("DEPTH3D", 1200, 1000, 4);
 
 // Loader, render engine and physics engine
 Loader loader = new Loader();
@@ -23,6 +23,7 @@ PhysicsEngine jitter = new(window.UpdateFrequency);
 Shape shape = new BoxShape(1, 1, 1);
 Shape planeShape = new BoxShape(1000, 0.001f, 1000);
 Shape vehicleShape = new BoxShape(2f, 1.45f, 5.5f);
+Shape vehicleSuvShape = new BoxShape(2f, 1.45f, 5.5f);
 List<RigidBody> bodies = new();
 
 #region resources
@@ -37,7 +38,6 @@ Mesh wheelModel = PolygonFileFormat.LoadPly("CoupeBlue/wheel.ply", loader);
 Mesh wheelModelFlipped = PolygonFileFormat.LoadPly("CoupeBlue/wheelFlipped.ply", loader);
 Texture wheelTexture = loader.LoadTexture("CoupeBlue/wheel_1_Diffuse.png");
 
-
 Mesh platformModel = Wavefront.LoadObj("plane.obj", loader);
 Texture platformTexture = loader.LoadTexture("Textures/asphalt-seamless.jpg");
 platformTexture.Reflectivity = 0.1f;
@@ -48,15 +48,18 @@ texture.ShineDamper = 128f;
 texture.Reflectivity = 0.45f;
 
 TexturedModel crate = new TexturedModel(model, texture);
+
+// Coupe
 TexturedModel vehicleTexturedModel = new TexturedModel(vehicleModel, vehicleTexture);
 TexturedModel wheelTexturedModel = new TexturedModel(wheelModel, wheelTexture);
 TexturedModel wheelFlippedTexturedModel = new TexturedModel(wheelModelFlipped, wheelTexture);
+
 TexturedModel platformTexturedModel = new TexturedModel(platformModel, platformTexture);
 #endregion
 
 // Entities
 #region Camera & lighting
-Camera camera = new Camera(new Vector3(25.75f, 2f, 12.25f), new Vector3(0, 0, 0));
+Camera camera = new Camera(new Vector3(-15.75f, -5f, 12.25f), new Vector3(0, 0, 0));
 Light directionalLight = new Light(new Vector3(1, -1, -1), new Vector3(1, 1, 1));
 #endregion
 
@@ -68,7 +71,7 @@ Entity wheelFrontRight  = new Entity(wheelTexturedModel, new Vector3(), new Vect
 Entity wheelRearLeft    = new Entity(wheelFlippedTexturedModel, new Vector3(), new Vector3(), 1f);
 Entity wheelRearRight   = new Entity(wheelTexturedModel, new Vector3(), new Vector3(), 1f);
 
-Vehicle vehicle = new Vehicle(vehicleTexturedModel, new Vector3(-10f, -8, -10f), new Vector3(0f, 90f, 0f), 1f) { WheelEntites = new Entity[4] {wheelFrontLeft, wheelFrontRight, wheelRearLeft, wheelRearRight }, WheelRadius = 0.4f, RestLength = 0.45f, SpringTravel = 0.4f, SpringStiffness = 30000, DamperStiffness = 900f, WheelBase = 2.62f, RearTrack = 1.225f, TurnRadius = 4.8f}; //1.525 10.8
+Vehicle vehicle = new Vehicle(vehicleTexturedModel, new Vector3(-10f, -5, -10f), new Vector3(0f, 90f, 0f), 1f) { WheelEntites = new Entity[4] {wheelFrontLeft, wheelFrontRight, wheelRearLeft, wheelRearRight }, WheelRadius = 0.4f, RestLength = 0.55f, SpringTravel = 0.4f, SpringStiffness = 30000, DamperStiffness = 900f, WheelBase = 2.62f, RearTrack = 1.225f, TurnRadius = 4.8f}; //1.525 10.8
 
 RigidBody vehicleBody = new RigidBody(vehicleShape);
 vehicleBody.Mass = 1400;
@@ -113,7 +116,6 @@ entities.Add(wheelFrontLeft);
 entities.Add(wheelFrontRight);
 entities.Add(wheelRearLeft);
 entities.Add(wheelRearRight);
-
 bodies.Add(platformBody);
 bodies.Add(vehicleBody);
 jitter.Init(bodies);
@@ -121,11 +123,10 @@ double fps = 0.0;
 
 // Events
 window.Load += WindowLoad;
-
 window.UpdateFrame += UpdateFrame;
 window.RenderFrame += RenderFrame;
-window.Closing += WindowClosing;
 window.Resize += WindowResize;
+window.Closing += WindowClosing;
 
 // Run window
 window.Run();
@@ -151,6 +152,7 @@ void UpdateFrame(FrameEventArgs obj)
         entities[i].Update();
 
     // Game logic
+    //camera.UpdateSpeed(0.25f);
     camera.LookAt(vehicle);
     vehicle.Update(jitter);
 }
@@ -169,8 +171,13 @@ void RenderFrame(FrameEventArgs obj)
 
     //meta
     fps = 1.0 / window.RenderTime;
-    //Console.WriteLine("FPS " + fps);
+    Console.WriteLine("FPS " + fps);
     //Console.WriteLine(camera.ToString());
+}
+
+void WindowResize(ResizeEventArgs obj)
+{
+    GL.Viewport(0, 0, window.Size.X, window.Size.Y);
 }
 
 void WindowClosing(System.ComponentModel.CancelEventArgs obj)
@@ -178,9 +185,5 @@ void WindowClosing(System.ComponentModel.CancelEventArgs obj)
     loader.CleanUp();
     renderEngine.CleanUp();
     jitter.CleanUp();
-}
-
-void WindowResize(ResizeEventArgs obj)
-{
-    GL.Viewport(0, 0, window.Size.X, window.Size.Y);
+    //window.Dispose();
 }

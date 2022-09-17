@@ -14,6 +14,8 @@ namespace Depth3d
             _shader = shader;
 
             GL.Enable(EnableCap.CullFace);
+            GL.Enable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.Multisample);
             GL.CullFace(CullFaceMode.Back);
 
             // Projection matrix is loaded once
@@ -24,10 +26,9 @@ namespace Depth3d
 
         public void Prepare()
         {
-            GL.Enable(EnableCap.DepthTest);
             GL.Clear(ClearBufferMask.ColorBufferBit);
             GL.Clear(ClearBufferMask.DepthBufferBit);
-            GL.ClearColor(0, 0, 0, 1);
+            GL.ClearColor(0.1375f, 0.1375f, 0.1375f, 1);
         }
 
         // This render method will bind the model data once per distinct model and draw with different transformations based on given entity

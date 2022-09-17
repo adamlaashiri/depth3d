@@ -34,7 +34,7 @@ namespace Depth3d.Entities
 
         private Vector3[] _wheels = new Vector3[4];
         private Vector3[] _oldWheelPos = new Vector3[4];
-        private Vector3 _wheelDistance = new Vector3(1f, 1.7f, -0.15f); // Relative position offsets to vehicle world space position
+        public Vector3 WheelDistance = new Vector3(1f, 1.7f, -0.15f); // Relative position offsets to vehicle world space position
 
         // Suspention system
 
@@ -68,7 +68,7 @@ namespace Depth3d.Entities
         private float _fy;
         private float _slideFactor = 1f;
 
-        private float _elapsed;
+        private float[] _rotated = new float[4];
 
         public Vehicle(TexturedModel model, Vector3 position, Vector3 rotation, float scale) : base(model, position, rotation, scale) {}
 
@@ -99,7 +99,6 @@ namespace Depth3d.Entities
             UpdateWheelPositions();
             float driveInput = input.IsKeyDown(Keys.W) ? 1f : input.IsKeyDown(Keys.S) ? -1f : 0f;
             float steerInput = input.IsKeyDown(Keys.A) ? -1f : input.IsKeyDown(Keys.D) ? 1f : 0f;
-            _elapsed += 0.008f;
 
             for (int i = 0; i < 4; i++)
             {
@@ -126,11 +125,6 @@ namespace Depth3d.Entities
                 q.Invert();
                 Vector3 wheelLinearVelocity = q * ((curr - _oldWheelPos[i]) / 0.008f);
                 
-                // Rotate wheel according to z component of linear velocity
-                float rotateFactor = -wheelLinearVelocity.Z / (2 * MathF.PI * WheelRadius) * 0.008f * 3600f;
-                WheelEntites[i].Rotate(new Vector3(_elapsed * rotateFactor, 0,0));
-                if (i==0)
-                    Console.WriteLine(rotateFactor);
 
                 RaycastHit hit = engine.Raycast(new JVector(curr.X, curr.Y, curr.Z), new JVector(Up.X, Up.Y, Up.Z) * -1, RigidBody);
                 if (hit.RigidBody != null && hit.Distance <= _maxLength + WheelRadius)
@@ -147,7 +141,7 @@ namespace Depth3d.Entities
                     _fx = driveInput * _springForce;
                     _fy = wheelLinearVelocity.X * _springForce * _slideFactor;
 
-                    JVector traction = _fx * new JVector(-Forward.X, -Forward.Y, -Forward.Z);
+                    JVector traction = _fx * new JVector(-WheelEntites[i].Forward.X, -WheelEntites[i].Forward.Y, -WheelEntites[i].Forward.Z);
                     JVector sideTraction = _fy * new JVector(-WheelEntites[i].Right.X, -WheelEntites[i].Right.Y, -WheelEntites[i].Right.Z); // Used forward vectors of wheel before, but wheel rotation messes with that
 
                     RigidBody.AddForce(new JVector(_suspensionForce.X, _suspensionForce.Y, _suspensionForce.Z) + traction + sideTraction, hit.Point);
@@ -156,6 +150,12 @@ namespace Depth3d.Entities
                     WheelEntites[i].Position = curr - Up * (_springLength);
                     _oldDist[i] = _springLength;
                 }
+
+                // Rotate wheel according to z component of linear velocity
+                float rotateFactor = -wheelLinearVelocity.Z / (2 * MathF.PI * WheelRadius) * 360f;
+                _rotated[i] += rotateFactor * 0.008f;
+                WheelEntites[i].Rotate(new Vector3(-_rotated[i], 0, 0));
+
             }
 
             UpdateWheelVelocities();
@@ -180,7 +180,7 @@ namespace Depth3d.Entities
             if (input.IsKeyDown(Keys.Space))
                 _slideFactor = MathF.Max(_slideFactor * 0.95f, 0.025f);
             else
-                _slideFactor = MathF.Min(_slideFactor * 1.1f, 0.3f);
+                _slideFactor = MathF.Min(_slideFactor * 1.1f, 0.25f);
 
         }
 
@@ -192,10 +192,10 @@ namespace Depth3d.Entities
 
         private void UpdateWheelPositions()
         {
-            _wheels[0] = _position + ((-Right) * _wheelDistance.X + (-Forward) * _wheelDistance.Y) + Up * _wheelDistance.Z; // Front left
-            _wheels[1] = _position + (Right * _wheelDistance.X + (-Forward) * _wheelDistance.Y) + Up * _wheelDistance.Z;    // Front right
-            _wheels[2] = _position + ((-Right) * _wheelDistance.X + (Forward) * _wheelDistance.Y) + Up * _wheelDistance.Z;  // Rear left
-            _wheels[3] = _position + (Right * _wheelDistance.X + (Forward) * _wheelDistance.Y) + Up * _wheelDistance.Z;    // Rear right
+            _wheels[0] = _position + ((-Right) * WheelDistance.X + (-Forward) * WheelDistance.Y) + Up * WheelDistance.Z; // Front left
+            _wheels[1] = _position + (Right * WheelDistance.X + (-Forward) * WheelDistance.Y) + Up * WheelDistance.Z;    // Front right
+            _wheels[2] = _position + ((-Right) * WheelDistance.X + (Forward) * WheelDistance.Y) + Up * WheelDistance.Z;  // Rear left
+            _wheels[3] = _position + (Right * WheelDistance.X + (Forward) * WheelDistance.Y) + Up * WheelDistance.Z;    // Rear right
         }
     }
 }
